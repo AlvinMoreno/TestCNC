@@ -1,1 +1,0 @@
-console.log('PrecisionForge CNC website loaded successfully.');
