@@ -2,121 +2,1435 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PrecisionForge CNC</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>AI @ UT Austin – Visual Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --burnt: #bf5700;
+      --accent: #ffb347;
+      --bg: #e5e7eb;
+      --card: #fff7ed;
+      --text: #111827;
+      --muted: #4b5563;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, #fff2e0, #e5e7eb 60%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Big faint longhorn in the background */
+    body::before {
+      content: "🤘";
+      position: fixed;
+      right: -40px;
+      bottom: -60px;
+      font-size: 260px;
+      color: rgba(191, 87, 0, 0.08);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 16px 16px;
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #111827;
+    }
+
+    header h1 span {
+      color: var(--burnt);
+    }
+
+    header p {
+      margin: 4px 0 2px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #374151;
+    }
+
+    .ut-logo {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ut-logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: var(--burnt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .ut-longhorn-icon {
+      line-height: 1;
+      transform: translateY(1px);
+    }
+
+    .ut-logo-text {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #4b5563;
+    }
+
+    /* If you have an actual UT Longhorn logo image, replace the circle with:
+       <img src="ut-longhorn.png" alt="UT Austin Longhorn logo" style="height:40px;" />
+    */
+
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto 32px;
+      padding: 0 16px 24px;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 18px 16px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #d1d5db;
+    }
+
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* MAIN WORD CLOUD CIRCLE */
+    .cloud-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px 4px 10px;
+    }
+
+    .cloud-circle {
+      width: 360px;
+      height: 360px;
+      max-width: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at top, #fff8ed, #e5e7eb 70%);
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cloud-label {
+      position: absolute;
+      inset: 40% 25%;
+      text-align: center;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .cloud-word {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      color: #111827;
+      transition: transform 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
+      white-space: nowrap;
+      cursor: pointer;
+      will-change: transform;
+    }
+
+    .cloud-word:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      color: var(--burnt);
+      text-shadow: 0 0 8px rgba(191, 87, 0, 0.5);
+    }
+
+    .cw-1 { font-size: 0.8rem; opacity: 0.9; }
+    .cw-2 { font-size: 1rem; font-weight: 500; }
+    .cw-3 { font-size: 1.25rem; font-weight: 700; }
+    .cw-4 { font-size: 1.6rem; font-weight: 800; color: var(--burnt); }
+
+    /* BUBBLE CLUSTER */
+    .bubbles {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .bubble {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 4px 4px;
+    }
+
+    .bubble-circle {
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 8px;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.9);
+      background: radial-gradient(circle at top, #ffedd5, #fefce8);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      color: #111827;
+    }
+
+    .bubble-circle span {
+      max-width: 80px;
+    }
+
+    .bubble-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .bubble.big {
+      transform: translateY(-4px);
+    }
+
+    .bubble.big .bubble-circle {
+      width: 110px;
+      height: 110px;
+      font-size: 0.9rem;
+    }
+
+    .bubble.med .bubble-circle {
+      width: 90px;
+      height: 90px;
+    }
+
+    .bubble.small .bubble-circle {
+      width: 70px;
+      height: 70px;
+      font-size: 0.72rem;
+    }
+
+    .bubble-circle:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 24px rgba(191, 87, 0, 0.5);
+      background: radial-gradient(circle at top, #fed7aa, #ffffff);
+    }
+
+    /* TOGGLE BAR (NOW / FUTURE) */
+    .toggle-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .toggle-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      background: #fffaf3;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(to right, #fb923c, var(--burnt));
+      border-color: transparent;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 0 14px rgba(191,87,0,0.6);
+    }
+
+    /* EMOJI STRIP (MOOD LINE) */
+    .mood-strip {
+      margin-top: 10px;
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: #fffaf3;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 20px rgba(15,23,42,0.15);
+    }
+
+    .mood-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .mood-timeline {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      padding: 0 6px;
+    }
+
+    .mood-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: #fefce8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.9);
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    .mood-dot.active {
+      background: radial-gradient(circle at top, #fb923c, var(--burnt));
+      box-shadow: 0 0 16px rgba(191, 87, 0, 0.9);
+      transform: scale(1.2);
+      color: #ffffff;
+    }
+
+    .mood-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      min-width: 70px;
+      text-align: right;
+    }
+
+    /* TILE GRID (USES) */
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .tile {
+      background: #fffaf3;
+      border-radius: 14px;
+      min-height: 70px;
+      box-shadow: 0 0 0 1px rgba(209, 213, 219, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      color: #111827;
+    }
+
+    .tile-emoji {
+      font-size: 1.3rem;
+      margin-bottom: 3px;
+    }
+
+    .tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px rgba(191, 87, 0, 0.4);
+      border-color: var(--burnt);
+      background: #ffedd5;
+    }
+
+    /* CAMPUS CIRCLE MAP */
+    .campus-circle-wrap {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .campus-circle {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      position: relative;
+      background: radial-gradient(circle at top, #fff7ed, #e5e7eb 80%);
+      border: 1px dashed rgba(148, 163, 184, 0.8);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    .campus-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, #fb923c, var(--burnt));
+      box-shadow: 0 0 22px rgba(191, 87, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 1.5rem;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .campus-center-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .campus-node {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      background: #fffaf3;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #111827;
+      text-align: center;
+      padding: 2px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .campus-node-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #4b5563;
+    }
+
+    .campus-node:hover {
+      transform: translate(-50%, -50%) scale(1.06);
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.6);
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+
+    .campus-node[data-spot="classes"] {
+      left: 50%;
+      top: 12%;
+      transform: translate(-50%, -50%);
+    }
+
+    .campus-node[data-spot="library"] {
+      left: 15%;
+      top: 72%;
+      transform: translate(-50%, -50%);
+    }
+
+    .campus-node[data-spot="advising"] {
+      left: 85%;
+      top: 72%;
+      transform: translate(-50%, -50%);
+    }
+
+    .campus-ring {
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* BOTTOM BAND (LEGEND) */
+    .legend-band {
+      max-width: 1200px;
+      margin: 0 auto 18px;
+      padding: 10px 16px 8px;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .legend-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fffaf3;
+      box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .legend-dot.orange {
+      background: #fb923c;
+    }
+
+    .legend-dot.green {
+      background: #22c55e;
+    }
+
+    .legend-dot.blue {
+      background: #3b82f6;
+    }
+
+    .legend-dot.pink {
+      background: #ec4899;
+    }
+
+    /* COMIC + FLOW SECTION */
+    .visual-section {
+      max-width: 1200px;
+      margin: 0 auto 26px;
+      padding: 4px 16px 24px;
+    }
+
+    .comic-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 800px) {
+      .comic-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .comic-panel {
+      background: #fffaf3;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      padding: 10px 8px 10px;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .comic-panel:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(191, 87, 0, 0.4);
+      border-color: var(--burnt);
+      background: #ffedd5;
+    }
+
+    .comic-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .comic-emoji {
+      font-size: 2.4rem;
+    }
+
+    .comic-dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .comic-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #d1d5db;
+    }
+
+    .comic-panel[data-scene="before"] .comic-dot:nth-child(1),
+    .comic-panel[data-scene="with"] .comic-dot:nth-child(2),
+    .comic-panel[data-scene="after"] .comic-dot:nth-child(3) {
+      background: var(--burnt);
+      box-shadow: 0 0 10px rgba(191, 87, 0, 0.7);
+    }
+
+    /* FLOW PATH */
+    .flow-path {
+      margin-top: 18px;
+      padding: 10px 10px 6px;
+      border-radius: 24px;
+      border: 1px dashed rgba(148, 163, 184, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fffaf3;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.15);
+    }
+
+    .flow-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+    }
+
+    .flow-track {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: relative;
+      padding: 4px 4px 6px;
+    }
+
+    .flow-line {
+      position: absolute;
+      left: 9%;
+      right: 9%;
+      top: 50%;
+      height: 2px;
+      background: linear-gradient(to right, #fb923c, #22c55e);
+      opacity: 0.6;
+    }
+
+    .flow-node {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fefce8;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      z-index: 1;
+    }
+
+    .flow-node:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 0 18px rgba(191, 87, 0, 0.7);
+      background: #fffbeb;
+      border-color: var(--burnt);
+    }
+
+    .flow-node.active {
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+      background: radial-gradient(circle at top, #22c55e, #16a34a);
+      color: #ffffff;
+    }
+
+    .flow-tags {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    /* EXTRA SECTION */
+    .extra-section {
+      max-width: 1200px;
+      margin: 0 auto 32px;
+      padding: 0 16px 32px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .extra-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* MINI SCENARIO GRID (12 CARDS) */
+    .scenario-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .scenario-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .scenario-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scenario-card {
+      background: #fffaf3;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.85);
+      padding: 10px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .scenario-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(191, 87, 0, 0.4);
+      border-color: var(--burnt);
+      background: #ffedd5;
+    }
+
+    .scenario-strip {
+      font-size: 1.6rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scenario-caption {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* NETWORK SNAPSHOT */
+    .network-wrap {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .network {
+      width: 260px;
+      height: 260px;
+      border-radius: 24px;
+      background: #fffaf3;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 6px;
+      padding: 10px;
+      position: relative;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+    }
+
+    .network-node {
+      border-radius: 14px;
+      background: #fefce8;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 4px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      color: var(--muted);
+    }
+
+    .network-node strong {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #111827;
+    }
+
+    .network-node span {
+      font-size: 1.3rem;
+    }
+
+    .network-node.center {
+      background: radial-gradient(circle at top, #fb923c, var(--burnt));
+      box-shadow: 0 0 22px rgba(191, 87, 0, 0.95);
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    .network-node:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 22px rgba(59, 130, 246, 0.75);
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+
+    .network-links {
+      position: absolute;
+      inset: 16px;
+      border-radius: 18px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .network-legend {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .network-chip {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      padding: 4px 8px;
+      background: #fffaf3;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
 </head>
 <body>
-
-  <header>
-    <nav>
-      <h1>PrecisionForge CNC</h1>
-
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#services">Services</a></li>
-        <li><a href="#gallery">Gallery</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <section id="home" class="hero">
-    <div>
-      <h2>Precision CNC Machining</h2>
-
-      <p>
-        Custom parts, prototypes, and small batch production.
-      </p>
-
-      <a href="#contact" class="button">Request a Quote</a>
+<header>
+  <div class="ut-logo">
+    <div class="ut-logo-circle">
+      <span class="ut-longhorn-icon">🤘</span>
     </div>
-  </section>
+    <div class="ut-logo-text">The University of Texas at Austin</div>
+  </div>
+  <p>UT Austin • Project 4 Visual</p>
+  <h1><span>AI</span> @ UT</h1>
+  <div class="tagline">Learn • Support • Lead</div>
+</header>
 
-  <section id="about" class="section">
-    <h2>About Us</h2>
-
-    <p>
-      PrecisionForge CNC is a startup machining company focused on
-      quality, precision, and reliable service.
-    </p>
-  </section>
-
-  <section id="services" class="section">
-    <h2>Services</h2>
-
-    <div class="cards">
-
-      <div class="card">
-        <h3>CNC Milling</h3>
-        <p>Precision milling for custom parts.</p>
+<section class="layout">
+  <!-- LEFT: MAIN CLOUD + BUBBLES -->
+  <div class="panel">
+    <div class="panel-title">
+      <span>AI + Campus Vibes</span>
+      <div class="dot-row">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
       </div>
-
-      <div class="card">
-        <h3>Custom Parts</h3>
-        <p>Machined parts made to fit your project.</p>
-      </div>
-
-      <div class="card">
-        <h3>Prototyping</h3>
-        <p>Bring your ideas into real products.</p>
-      </div>
-
-      <div class="card">
-        <h3>Small Batch Production</h3>
-        <p>Perfect for startups and small runs.</p>
-      </div>
-
     </div>
-  </section>
 
-  <section id="gallery" class="section">
-    <h2>Gallery</h2>
+    <div class="cloud-wrapper">
+      <div class="cloud-circle" id="wordCloud">
+        <div class="cloud-label">Key Ideas</div>
 
-    <div class="gallery">
-      <img src="https://images.unsplash.com/photo-1565043666747-69f6646db940?q=80&w=1200&auto=format&fit=crop" alt="CNC">
+        <!-- big center words -->
+        <span class="cloud-word cw-4" data-x="50" data-y="30">Access</span>
+        <span class="cloud-word cw-3" data-x="25" data-y="45">Support</span>
+        <span class="cloud-word cw-3" data-x="75" data-y="45">Equity</span>
+        <span class="cloud-word cw-3" data-x="50" data-y="63">Ethics</span>
 
-      <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1200&auto=format&fit=crop" alt="Machine">
+        <!-- medium ring -->
+        <span class="cloud-word cw-2" data-x="18" data-y="28">Feedback</span>
+        <span class="cloud-word cw-2" data-x="82" data-y="28">Focus</span>
+        <span class="cloud-word cw-2" data-x="18" data-y="62">Future</span>
+        <span class="cloud-word cw-2" data-x="82" data-y="62">Clarity</span>
 
-      <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop" alt="Metal">
-
-      <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1200&auto=format&fit=crop" alt="Parts">
+        <!-- small words spaced around -->
+        <span class="cloud-word cw-1" data-x="50" data-y="15">Policy</span>
+        <span class="cloud-word cw-1" data-x="12" data-y="40">Burnout</span>
+        <span class="cloud-word cw-1" data-x="88" data-y="40">Fairness</span>
+        <span class="cloud-word cw-1" data-x="16" data-y="75">Access Gap</span>
+        <span class="cloud-word cw-1" data-x="84" data-y="75">Data</span>
+        <span class="cloud-word cw-1" data-x="50" data-y="83">Confusion</span>
+      </div>
     </div>
-  </section>
 
-  <section id="contact" class="section">
-    <h2>Contact</h2>
+    <div class="hint">
+      Bigger words = bigger AI issues on campus. Hover to spotlight them.
+    </div>
 
-    <p><strong>Name:</strong> Your Name</p>
+    <div class="toggle-bar">
+      <button class="toggle-btn active" data-mode="now">Now</button>
+      <button class="toggle-btn" data-mode="program">Program</button>
+    </div>
 
-    <p>
-      <strong>Email:</strong>
-      <a href="mailto:youremail@example.com">
-        youremail@example.com
-      </a>
-    </p>
+    <div class="bubbles" id="bubbleArea"></div>
 
-    <p>
-      <strong>Phone:</strong>
-      <a href="tel:1234567890">
-        (123) 456-7890
-      </a>
-    </p>
+    <div class="hint">
+      Switch NOW / PROGRAM to see stress shrink and support grow.
+    </div>
+  </div>
 
-    <a
-      class="button"
-      href="mailto:youremail@example.com?subject=CNC Quote"
-    >
-      Email for Quote
-    </a>
-  </section>
+  <!-- RIGHT: CAMPUS MAP PANEL WITH EXPLAINED NODES -->
+  <div class="panel">
+    <div class="panel-title">
+      <span>Campus Map</span>
+      <div class="dot-row">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
 
-  <footer>
-    <p>© 2026 PrecisionForge CNC</p>
-  </footer>
+    <div class="mood-strip" id="moodStrip">
+      <div class="mood-label">Mood Line</div>
+      <div class="mood-timeline">
+        <div class="mood-dot active" data-mood="stress">😵</div>
+        <div class="mood-dot" data-mood="confused">😕</div>
+        <div class="mood-dot" data-mood="neutral">😐</div>
+        <div class="mood-dot" data-mood="curious">🤔</div>
+        <div class="mood-dot" data-mood="supported">😊</div>
+        <div class="mood-dot" data-mood="ready">🚀</div>
+      </div>
+      <div class="mood-tag" id="moodTag">Now</div>
+    </div>
 
-  <script src="script.js"></script>
+    <div class="hint">
+      Click an emoji to show how AI feels now vs with the program.
+    </div>
 
+    <div class="tile-grid">
+      <div class="tile">
+        <div class="tile-emoji">📚</div>
+        <div>Study Boost</div>
+      </div>
+      <div class="tile">
+        <div class="tile-emoji">⏱️</div>
+        <div>Time Saved</div>
+      </div>
+      <div class="tile">
+        <div class="tile-emoji">🧠</div>
+        <div>Thinking, Not Copy</div>
+      </div>
+      <div class="tile">
+        <div class="tile-emoji">🦾</div>
+        <div>Assist, Not Replace</div>
+      </div>
+      <div class="tile">
+        <div class="tile-emoji">🌐</div>
+        <div>Equal Access</div>
+      </div>
+      <div class="tile">
+        <div class="tile-emoji">📊</div>
+        <div>Early Signals</div>
+      </div>
+    </div>
+
+    <div class="campus-circle-wrap">
+      <div class="campus-circle">
+        <div class="campus-ring"></div>
+
+        <div class="campus-center">
+          <span>🤖</span>
+          <div class="campus-center-label">AI Hub</div>
+        </div>
+
+        <div class="campus-node" data-spot="classes">
+          <span>🏫</span>
+          <div class="campus-node-label">Smart Syllabi & Quizzes</div>
+        </div>
+
+        <div class="campus-node" data-spot="library">
+          <span>📖</span>
+          <div class="campus-node-label">AI Research Helper</div>
+        </div>
+
+        <div class="campus-node" data-spot="advising">
+          <span>💬</span>
+          <div class="campus-node-label">Advising Chatbot Q&A</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint">
+      Circle map: AI Hub in the middle powering smarter classes, faster research, and quicker advising answers.
+    </div>
+  </div>
+</section>
+
+<section class="legend-band">
+  <div class="legend-row">
+    <div class="legend-pill">
+      <div class="legend-dot orange"></div>
+      <span>Program = More Support</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot green"></div>
+      <span>Green Bubbles = Big Wins</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot blue"></div>
+      <span>Blue = Campus Spots</span>
+    </div>
+    <div class="legend-pill">
+      <div class="legend-dot pink"></div>
+      <span>Emoji Line = Feelings</span>
+    </div>
+  </div>
+</section>
+
+<section class="visual-section">
+  <div class="panel-title" style="margin-bottom: 4px;">
+    <span>Mini Comic • AI On Campus</span>
+    <div class="dot-row">
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="comic-row">
+    <div class="comic-panel" data-scene="before">
+      <div class="comic-label">Before</div>
+      <div class="comic-emoji">😵‍💫</div>
+      <div class="comic-dots">
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+      </div>
+    </div>
+    <div class="comic-panel" data-scene="with">
+      <div class="comic-label">With AI</div>
+      <div class="comic-emoji">🤝</div>
+      <div class="comic-dots">
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+      </div>
+    </div>
+    <div class="comic-panel" data-scene="after">
+      <div class="comic-label">After</div>
+      <div class="comic-emoji">🚀</div>
+      <div class="comic-dots">
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+        <div class="comic-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">
+    Three-panel comic: how a student feels before, with, and after AI support.
+  </div>
+
+  <div class="flow-path">
+    <div class="flow-label">Journey Snapshot</div>
+    <div class="flow-track">
+      <div class="flow-line"></div>
+      <div class="flow-node active" data-step="student">🧑‍🎓</div>
+      <div class="flow-node" data-step="ai">🤖</div>
+      <div class="flow-node" data-step="support">🙌</div>
+      <div class="flow-node" data-step="success">🎓</div>
+    </div>
+    <div class="flow-tags">
+      <span>Student</span>
+      <span>AI</span>
+      <span>Support</span>
+      <span>Success</span>
+    </div>
+  </div>
+
+  <div class="hint">
+    Tap each icon to follow the path: student → AI → support → graduation.
+  </div>
+</section>
+
+<section class="extra-section">
+  <!-- LEFT: EXPANDED MINI SCENARIO GRID (12 CARDS) -->
+  <div class="panel">
+    <div class="panel-title">
+      <span>Mini Scenarios</span>
+      <div class="dot-row">
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧑‍🎓</span><span>📚</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Late-night study buddy</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧑‍🏫</span><span>🧩</span><span>💻</span>
+        </div>
+        <div class="scenario-caption">Prof builds creative lesson</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>♿</span><span>🌐</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Accessibility boost</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧑‍🎓</span><span>📉</span><span>📊</span><span>🙌</span>
+        </div>
+        <div class="scenario-caption">Early help before failing</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧑‍💼</span><span>🧠</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Career prep with AI tools</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>👥</span><span>💬</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Group project organizer</div>
+      </div>
+
+      <!-- 6 new mini comics -->
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧑‍🎓</span><span>📝</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Outline helper for essays</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🌎</span><span>🔁</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Translation for global students</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🧪</span><span>🧬</span><span>💻</span>
+        </div>
+        <div class="scenario-caption">Virtual lab simulations</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>📆</span><span>⚖️</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Schedule and workload balance</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>📊</span><span>🧑‍🏫</span><span>🧑‍🎓</span>
+        </div>
+        <div class="scenario-caption">Dashboard for at-risk students</div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-strip">
+          <span>🎧</span><span>📖</span><span>🤖</span>
+        </div>
+        <div class="scenario-caption">Audio notes for long readings</div>
+      </div>
+    </div>
+
+    <div class="hint">
+      Each tile = tiny comic of AI helping in real campus moments.
+    </div>
+  </div>
+
+  <!-- RIGHT: AI NETWORK SNAPSHOT -->
+  <div class="panel">
+    <div class="panel-title">
+      <span>AI Network Snapshot</span>
+      <div class="dot-row">
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <div class="network-wrap">
+      <div class="network">
+        <div class="network-links"></div>
+
+        <div class="network-node">
+          <span>📚</span>
+          <strong>Courses</strong>
+        </div>
+        <div class="network-node">
+          <span>🧑‍🏫</span>
+          <strong>Faculty</strong>
+        </div>
+        <div class="network-node">
+          <span>📝</span>
+          <strong>Assignments</strong>
+        </div>
+        <div class="network-node">
+          <span>📊</span>
+          <strong>Data</strong>
+        </div>
+        <div class="network-node center">
+          <span>🤖</span>
+          <strong>AI Hub</strong>
+        </div>
+        <div class="network-node">
+          <span>🛡️</span>
+          <strong>Policy</strong>
+        </div>
+        <div class="network-node">
+          <span>🧑‍🎓</span>
+          <strong>Students</strong>
+        </div>
+        <div class="network-node">
+          <span>♿</span>
+          <strong>Access</strong>
+        </div>
+        <div class="network-node">
+          <span>📣</span>
+          <strong>Support</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="network-legend">
+      <div class="network-chip">
+        <span>🤖</span> Center = AI Integration Program
+      </div>
+      <div class="network-chip">
+        <span>⬜</span> Each box = one campus system it connects
+      </div>
+    </div>
+
+    <div class="hint">
+      Hover around the grid: AI sits in the middle, connecting courses, people, rules, data, and support.
+    </div>
+  </div>
+</section>
+
+<footer>
+  Visual argument: AI Integration Program for UT Austin • Project 4
+</footer>
+
+<script>
+  // place cloud words based on data-x / data-y
+  window.addEventListener("load", () => {
+    const cloud = document.getElementById("wordCloud");
+    const words = cloud.querySelectorAll(".cloud-word");
+    words.forEach(word => {
+      const x = word.getAttribute("data-x");
+      const y = word.getAttribute("data-y");
+      word.style.left = x + "%";
+      word.style.top = y + "%";
+    });
+  });
+
+  // BUBBLES: "Now" vs "Program"
+  const bubbleArea = document.getElementById("bubbleArea");
+  const toggleBtns = document.querySelectorAll(".toggle-btn");
+
+  const bubbleData = {
+    now: [
+      { size: "big", label: "Stress", color: "#ef4444" },
+      { size: "med", label: "Confusion", color: "#f97316" },
+      { size: "small", label: "Support", color: "#22c55e" }
+    ],
+    program: [
+      { size: "big", label: "Support", color: "#22c55e" },
+      { size: "med", label: "Access", color: "#3b82f6" },
+      { size: "small", label: "Stress↓", color: "#f97316" }
+    ]
+  };
+
+  function renderBubbles(mode) {
+    bubbleArea.innerHTML = "";
+    bubbleData[mode].forEach((b) => {
+      const wrap = document.createElement("div");
+      wrap.className = `bubble ${b.size}`;
+
+      const circle = document.createElement("div");
+      circle.className = "bubble-circle";
+      circle.style.boxShadow = `0 0 0 1px ${b.color}`;
+      circle.innerHTML = `<span>${b.label}</span>`;
+
+      const label = document.createElement("div");
+      label.className = "bubble-label";
+      label.textContent = mode === "now" ? "Now" : "Program";
+
+      wrap.appendChild(circle);
+      wrap.appendChild(label);
+      bubbleArea.appendChild(wrap);
+    });
+  }
+
+  toggleBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      toggleBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mode = btn.getAttribute("data-mode");
+      renderBubbles(mode);
+    });
+  });
+
+  renderBubbles("now");
+
+  // MOOD STRIP
+  const moodDots = document.querySelectorAll(".mood-dot");
+  const moodTag = document.getElementById("moodTag");
+
+  const moodMap = {
+    stress: "Now",
+    confused: "Unsure",
+    neutral: "Mixed",
+    curious: "Curious",
+    supported: "Supported",
+    ready: "Program"
+  };
+
+  moodDots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      moodDots.forEach((d) => d.classList.remove("active"));
+      dot.classList.add("active");
+      const mood = dot.getAttribute("data-mood");
+      moodTag.textContent = moodMap[mood];
+    });
+  });
+
+  // FLOW PATH: tap through steps
+  const flowNodes = document.querySelectorAll(".flow-node");
+  flowNodes.forEach((node) => {
+    node.addEventListener("click", () => {
+      flowNodes.forEach((n) => n.classList.remove("active"));
+      node.classList.add("active");
+    });
+  });
+
+  // COMIC PANELS: small wobble on click
+  const comicPanels = document.querySelectorAll(".comic-panel");
+  comicPanels.forEach((panel) => {
+    panel.addEventListener("click", () => {
+      panel.style.transform = "translateY(-4px) scale(1.02)";
+      setTimeout(() => {
+        panel.style.transform = "";
+      }, 180);
+    });
+  });
+
+  // Scenario cards: tiny bounce
+  const scenarioCards = document.querySelectorAll(".scenario-card");
+  scenarioCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      card.style.transform = "translateY(-4px) scale(1.02)";
+      setTimeout(() => {
+        card.style.transform = "";
+      }, 180);
+    });
+  });
+</script>
 </body>
 </html>
